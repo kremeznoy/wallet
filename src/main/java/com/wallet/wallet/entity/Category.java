@@ -21,4 +21,17 @@ public class Category {
     private Double amountAtStart;
     @NonNull
     private Long dateOfCreation = Instant.now().getEpochSecond();
+
+    @Builder
+    public Category(String categoryName, Boolean categoryStatus, Long currentIdInCategory, Double amountAtStart, Long dateOfCreation) {
+        this.categoryName = categoryName;
+        if (categoryStatus == null) {
+            this.categoryStatus = true;
+        } else {
+            this.categoryStatus = categoryStatus;
+        }
+        this.currentIdInCategory = currentIdInCategory;
+        this.amountAtStart = amountAtStart;
+        this.dateOfCreation = dateOfCreation;
+    }
 }

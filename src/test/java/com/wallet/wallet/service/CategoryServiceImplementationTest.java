@@ -51,12 +51,10 @@ class CategoryServiceImplementationTest {
 
     @Test
     void createNewCategory() {
-        Category categoryForCreation = new Category();
-        categoryForCreation.setCategoryName(RandomStringGenerator.getRandomStringGenerator(5));
-        categoryForCreation.setAmountAtStart(964.23);
-        categoryForCreation.setCategoryStatus(true);
-        categoryForCreation.setCurrentIdInCategory(currency.getCurrencyId());
-        categoryForCreation.setDateOfCreation(Instant.now().getEpochSecond());
+        Category categoryForCreation = Category.builder().dateOfCreation(Instant.now().getEpochSecond())
+                .categoryName(RandomStringGenerator.getRandomStringGenerator(5))
+                .categoryStatus(true).currentIdInCategory(currency.getCurrencyId())
+                .amountAtStart(964.23).build();
 
         Category savedCategory = categoryServiceImplementation.create(categoryForCreation);
         Optional<Category> retrievedCategory = categoryServiceImplementation.findOneById(savedCategory.getCategoryId());
@@ -67,6 +65,63 @@ class CategoryServiceImplementationTest {
                 () -> assertEquals(categoryForCreation.getAmountAtStart(), savedCategory.getAmountAtStart()),
                 () -> assertEquals(categoryForCreation.getCategoryName(), savedCategory.getCategoryName()),
                 () -> assertEquals(savedCategory, retrievedCategory.get())
+        );
+    }
+
+    @Test
+    void deleteSomeCategory() {
+        Category categoryForCreation = Category.builder().dateOfCreation(Instant.now().getEpochSecond())
+                .categoryName(RandomStringGenerator.getRandomStringGenerator(5))
+                .categoryStatus(true).currentIdInCategory(currency.getCurrencyId())
+                .amountAtStart(0.32).build();
+
+        Category savedCategory = categoryServiceImplementation.create(categoryForCreation);
+        Optional<Category> retrievedCategory = categoryServiceImplementation.findOneById(savedCategory.getCategoryId());
+
+        assertAll(
+                () -> assertEquals(categoryForCreation.getCategoryName(), savedCategory.getCategoryName()),
+                () -> assertEquals(savedCategory, retrievedCategory.get())
+        );
+
+        categoryServiceImplementation.delete(savedCategory.getCategoryId());
+
+        Optional<Category> retrievedCategoryAfterDeletion = categoryServiceImplementation.findOneById(savedCategory.getCategoryId());
+        assertAll(
+                () -> assertTrue(!retrievedCategoryAfterDeletion.isPresent())
+        );
+    }
+
+    @Test
+    void updateExistentCategory() {
+        Category categoryForFirstCreation = Category.builder().dateOfCreation(Instant.now().getEpochSecond())
+                .categoryName(RandomStringGenerator.getRandomStringGenerator(5))
+                .categoryStatus(false).currentIdInCategory(currency.getCurrencyId())
+                .amountAtStart(-444.809).build();
+
+        Category savedCategory = categoryServiceImplementation.create(categoryForFirstCreation);
+        Optional<Category> retrievedCategory = categoryServiceImplementation.findOneById(savedCategory.getCategoryId());
+
+        assertAll(
+                () -> assertEquals(categoryForFirstCreation.getCategoryName(), savedCategory.getCategoryName()),
+                () -> assertEquals(savedCategory, retrievedCategory.get())
+        );
+
+        String newCategoryName = RandomStringGenerator.getRandomStringGenerator(7);
+
+        try {
+            categoryServiceImplementation.updateCategoryName(savedCategory.getCategoryId(), newCategoryName);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        Optional<Category> retrievedCategoryAfterNameUpdate = categoryServiceImplementation.findOneById(savedCategory.getCategoryId());
+
+        assertAll(
+                () -> assertNotNull(savedCategory),
+                () -> assertTrue(retrievedCategoryAfterNameUpdate.isPresent()),
+                () -> assertEquals(categoryForFirstCreation.getAmountAtStart(), retrievedCategoryAfterNameUpdate.get().getAmountAtStart()),
+                () -> assertNotEquals(categoryForFirstCreation.getCategoryName(), retrievedCategoryAfterNameUpdate.get().getCategoryName()),
+                () -> assertEquals(newCategoryName, retrievedCategoryAfterNameUpdate.get().getCategoryName()),
+                () -> assertNotEquals(savedCategory, retrievedCategoryAfterNameUpdate.get())
         );
     }
 }

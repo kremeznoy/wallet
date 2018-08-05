@@ -17,6 +17,6 @@ public abstract class AbstractServiceImplementation<T> implements AbstractServic
         if (!findOneById(id).isPresent()) {
             throw new NullPointerException("You cannot delete non-existing object with id: " + id);
         }
-        getDao().findById(id);
+        getDao().deleteById(id);
     }
 }
