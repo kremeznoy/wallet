@@ -1,13 +1,12 @@
 package com.wallet.wallet.entity;
 
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@EqualsAndHashCode
 @NoArgsConstructor @RequiredArgsConstructor @Setter @Getter
+@EqualsAndHashCode
 @Table(name = "category")
 public class Category {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +16,7 @@ public class Category {
     @NonNull
     private Boolean categoryStatus = true;
     @NonNull
-    private Long currenyIdInCategory;
+    private Long currentIdInCategory;
     @NonNull
     private Double amountAtStart;
     @NonNull
